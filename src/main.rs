@@ -14,6 +14,7 @@ impl Arguments {
         } else if args.len() > 4 {
             return Err("too many arguments");
         }
+
         let f = args[1].clone();
         if let Ok(ipaddr) = IpAddr::from_str(&f) {
             return Ok(Arguments {
@@ -55,9 +56,14 @@ impl Arguments {
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    for i in &args {
-        println!("{}", i);
-    }
+    let program = args[0].clone();
 
-    print!("{:?}", args);
+    let arguments = Arguments::new(&args).unwrap_or_else(|err| {
+        if err.contains("help") {
+            std::process::exit(0);
+        } else {
+            eprintln!("{} problem parsing arguments: {}", program, err);
+            std::process::exit(1);
+        }
+    });
 }
